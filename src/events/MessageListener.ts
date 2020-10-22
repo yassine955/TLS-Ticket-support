@@ -67,82 +67,89 @@ export default class MessageListener extends Listener {
             );
 
             if (modRole) {
-              message.guild.channels
-                .create(`TLS-${message.author.id}`, {
-                  parent: "768815377660379176",
-                  type: "text",
-                  permissionOverwrites: [
-                    {
-                      type: "member",
-                      id: `${message.author.id}`,
-                      allow: [
-                        "SEND_MESSAGES",
-                        "READ_MESSAGE_HISTORY",
-                        "CONNECT",
-                        "SPEAK",
-                        "VIEW_CHANNEL",
-                      ],
-                    },
-                    {
-                      type: "role",
-                      id: modRole,
-                      allow: [
-                        "SEND_MESSAGES",
-                        "READ_MESSAGE_HISTORY",
-                        "CONNECT",
-                        "SPEAK",
-                        "VIEW_CHANNEL",
-                      ],
-                    },
-                    {
-                      type: "role",
-                      id: `${message.guild.roles.everyone.id}`,
-                      deny: ["READ_MESSAGE_HISTORY", "VIEW_CHANNEL"],
-                    },
-                  ],
-                })
-                .then(async (res) => {
-                  const privateEmbed = new MessageEmbed()
-                    .setColor(color)
-                    .addField("Ticket", `**<#${res.id}>**`)
-                    .setDescription(
-                      `${message.author} there was a ticket generated for you..`
+              const category = await this.client.settings.get(
+                message.guild.id,
+                "config.ticketcategory"
+              );
+
+              if (category) {
+                message.guild.channels
+                  .create(`TLS-${message.author.id}`, {
+                    parent: category,
+                    type: "text",
+                    permissionOverwrites: [
+                      {
+                        type: "member",
+                        id: `${message.author.id}`,
+                        allow: [
+                          "SEND_MESSAGES",
+                          "READ_MESSAGE_HISTORY",
+                          "CONNECT",
+                          "SPEAK",
+                          "VIEW_CHANNEL",
+                        ],
+                      },
+                      {
+                        type: "role",
+                        id: modRole,
+                        allow: [
+                          "SEND_MESSAGES",
+                          "READ_MESSAGE_HISTORY",
+                          "CONNECT",
+                          "SPEAK",
+                          "VIEW_CHANNEL",
+                        ],
+                      },
+                      {
+                        type: "role",
+                        id: `${message.guild.roles.everyone.id}`,
+                        deny: ["READ_MESSAGE_HISTORY", "VIEW_CHANNEL"],
+                      },
+                    ],
+                  })
+                  .then(async (res) => {
+                    const privateEmbed = new MessageEmbed()
+                      .setColor(color)
+                      .addField("Ticket", `**<#${res.id}>**`)
+                      .setDescription(
+                        `${message.author} there was a ticket generated for you..`
+                      );
+
+                    await message.author.send(privateEmbed).catch(() => null);
+
+                    const ticketMsg = await this.client.settings.get(
+                      message.guild.id,
+                      "config.ticketmsg"
                     );
 
-                  await message.author.send(privateEmbed).catch(() => null);
-
-                  const ticketMsg = await this.client.settings.get(
-                    message.guild.id,
-                    "config.ticketmsg"
-                  );
-
-                  if (ticketMsg) {
-                    const embed = new MessageEmbed()
-                      .setDescription(ticketMsg)
-                      .setColor(color)
-                      .setFooter(`TLS-${message.author.id}`)
-                      .setAuthor(
-                        message.author.username,
-                        message.author.displayAvatarURL({
-                          dynamic: true,
-                          format: "png",
-                        })
-                      );
-                    const creationDetail = new MessageEmbed()
-                      .setColor(color)
-                      .addField(
-                        "> CREATED_ACCOUNT",
-                        `**${message.author.createdAt}**`
-                      );
-                    const channel = message.guild.channels.cache.get(
-                      res.id
-                    ) as TextChannel;
-                    await channel.send(`${message.author}`);
-                    await channel.send(embed);
-                    await channel.send(creationDetail);
-                  }
-                })
-                .catch(() => null);
+                    if (ticketMsg) {
+                      const embed = new MessageEmbed()
+                        .setDescription(ticketMsg)
+                        .setColor(color)
+                        .setFooter(`TLS-${message.author.id}`)
+                        .setAuthor(
+                          message.author.username,
+                          message.author.displayAvatarURL({
+                            dynamic: true,
+                            format: "png",
+                          })
+                        );
+                      const creationDetail = new MessageEmbed()
+                        .setColor(color)
+                        .addField(
+                          "> CREATED_ACCOUNT",
+                          `**${message.author.createdAt}**`
+                        );
+                      const channel = message.guild.channels.cache.get(
+                        res.id
+                      ) as TextChannel;
+                      await channel.send(`${message.author}`);
+                      await channel.send(embed);
+                      await channel.send(creationDetail);
+                    }
+                  })
+                  .catch((r) => console.log(r));
+              }
             }
           }
         }
