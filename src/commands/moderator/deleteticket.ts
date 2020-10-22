@@ -33,8 +33,10 @@ export default class DeleteTicket extends Command {
     if (!SupportChannel)
       return message.channel.send(`${member} doesnt have a ticket..`);
 
-    await SupportChannel.delete().then((res) => {
-      return message.channel.send(`${member} ticket removed succesfully..`);
-    });
+    await SupportChannel.delete()
+      .then(() => {
+        return message.channel.send(`${member} ticket removed succesfully..`);
+      })
+      .catch(() => null);
   }
 }
