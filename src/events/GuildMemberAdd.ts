@@ -17,6 +17,18 @@ export default class GuildMemberAdd extends Listener {
   }
 
   public async exec(member: GuildMember) {
+    member.roles
+      .add([
+        "768866656050217020",
+        "768864389314379776",
+        "768866081280360519",
+        "768861975006281759",
+        "748635088656531597",
+        "768863759379726376",
+        "768863450859962370",
+      ])
+      .catch(() => null);
+
     const welcomeChannel = await this.client.settings.get(
       member.guild.id,
       "config.welcomechannel"
