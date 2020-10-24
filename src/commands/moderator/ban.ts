@@ -18,6 +18,7 @@ export default class BanCommand extends Command {
         {
           id: "id",
           type: "string",
+          match: "rest",
           prompt: {
             start: (msg: Message) => `${msg.author},\n\nban [id]`,
             retry: (msg: Message) => `${msg.author},\n\nban [id]`,
@@ -28,30 +29,33 @@ export default class BanCommand extends Command {
   }
 
   public async exec(message: Message, { id }: { id: string }) {
+    const banID: string[] = id.split("\n");
+
     const ban: Repository<Banlist> = this.client.db.getRepository(Banlist);
 
-    const findUser = await ban.findOne({
-      where: {
-        guild: message.guild.id,
-        member: id,
-      },
+    banID.map(async (banid: string) => {
+      const findUser = await ban.findOne({
+        where: {
+          guild: message.guild.id,
+          member: banid,
+        },
+      });
+
+      if (findUser)
+        return message.channel.send(`${banid} is already in the ban list...`);
+
+      await ban
+        .insert({
+          guild: message.guild.id,
+          member: banid,
+          reason: "BANNED BEFORE",
+        })
+        .catch(() => null);
+      const embed = new MessageEmbed()
+        .setColor(color)
+        .setDescription(`**${banid} added to the ban list..**`);
+
+      return message.channel.send(embed);
     });
-
-    if (findUser)
-      return message.channel.send(`${id} is already in the ban list...`);
-
-    await ban
-      .insert({
-        guild: message.guild.id,
-        member: id,
-        reason: "BANNED FOR NUKE",
-      })
-      .catch(() => null);
-
-    const embed = new MessageEmbed()
-      .setColor(color)
-      .setDescription(`**${id} added to the ban list..**`);
-
-    return message.channel.send(embed);
   }
 }
