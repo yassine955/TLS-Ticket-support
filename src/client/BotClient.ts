@@ -29,10 +29,16 @@ export default class BotClient extends AkairoClient {
   });
   public commandHandler: CommandHandler = new CommandHandler(this, {
     directory: join(__dirname, "..", "commands"),
-    prefix: async (msg: Message) =>
-      msg.guild
-        ? await this.settings.get(msg.guild.id, "config.prefix", prefix)
-        : prefix,
+    prefix: async (msg: Message) => {
+      const _CUSTOMPREFIX: string = await this.settings.get(
+        msg.guild.id,
+        "config.prefix",
+        prefix
+      );
+
+      if (_CUSTOMPREFIX) return _CUSTOMPREFIX;
+      else return prefix;
+    },
     allowMention: true,
     handleEdits: true,
     commandUtil: true,
