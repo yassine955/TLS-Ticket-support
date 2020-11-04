@@ -27,6 +27,10 @@ export default class ConfigCommand extends Command {
       message.guild.id,
       "config.modrole"
     );
+    const helperRole = await this.client.settings.get(
+      message.guild.id,
+      "config.helperrole"
+    );
 
     const ticketMsg = await this.client.settings.get(
       message.guild.id,
@@ -86,6 +90,11 @@ export default class ConfigCommand extends Command {
       .addField(
         "Moderator Role `.setmodrole`",
         !modRole ? `\`Not setup\`` : FINDROLE(modRole),
+        true
+      )
+      .addField(
+        "Helper Role `.sethelperrole`",
+        !helperRole ? `\`Not setup\`` : FINDROLE(helperRole),
         true
       )
 
