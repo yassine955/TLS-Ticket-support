@@ -5,6 +5,7 @@ import { Message, GuildMember } from "discord.js";
 import { Repository } from "typeorm";
 
 import { color } from "../../Config";
+import { _MESSAGE_EMBED } from "../../lib/_MESSAGE_EMBED";
 import { Banlist } from "../../models/Banlist";
 
 export default class Verify extends Command {
@@ -12,16 +13,18 @@ export default class Verify extends Command {
     super("verify", {
       aliases: ["verify"],
       category: "Public Commands",
-      userPermissions: "MANAGE_MESSAGES",
       ratelimit: 40,
+
       args: [
         {
           id: "member",
           type: "member",
-          prompt: {
-            start: (msg: Message) => `${msg.author},\n\nverify [@member]`,
-            retry: (msg: Message) => `${msg.author},\n\nverify [@member]`,
-          },
+
+          // prompt: {
+          //   start: (msg: Message) => `${msg.author},\n\nverify [@member]`,
+          //   retry: (msg: Message) => `${msg.author},\n\nverify [@member]`,
+
+          // },
         },
       ],
     });
@@ -32,78 +35,101 @@ export default class Verify extends Command {
       message.guild.id,
       "config.verifyrole"
     );
-    if (verifyRole) {
-      if (member.roles.cache.has(verifyRole)) {
-        return message.channel.send(`${member} already has this role`);
-      }
+    const helperRole = await this.client.settings.get(
+      message.guild.id,
+      "config.helperrole"
+    );
 
-      if (member.hasPermission("MANAGE_MESSAGES")) return;
+    if (
+      message.member.roles.cache.has(helperRole) &&
+      helperRole &&
+      verifyRole
+    ) {
+      if (!member)
+        return message.channel.send(
+          _MESSAGE_EMBED("`❌` Please provide a user!! `[@username]`")
+        );
+      else {
+        if (member.roles.cache.has(verifyRole)) {
+          return message.channel.send(
+            _MESSAGE_EMBED(`❌ ${member} already has this role`)
+          );
+        }
 
-      await member.roles
-        .add(verifyRole)
-        .then(() => {
-          return message.author
-            .send(`${member} is verified...`)
-            .catch(() => null);
-        })
-        .catch(() => null);
-      const general = await this.client.settings.get(
-        message.guild.id,
-        "config.generalchannel"
-      );
+        if (member.hasPermission("MANAGE_MESSAGES"))
+          return message.channel.send(_MESSAGE_EMBED(`⚠️ This is a Moderator`));
 
-      if (general) {
-        const welcomeChannel = message.guild.channels.cache.get(
-          general
-        ) as TextChannel;
+        await member.roles
+          .add(verifyRole)
+          .then(() => {
+            return message.author
+              .send(_MESSAGE_EMBED(`${member} is verified...`))
+              .catch(() => null);
+          })
+          .catch(() => null);
 
-        const generalMSG = await this.client.settings.get(
+        const general = await this.client.settings.get(
           message.guild.id,
-          "config.generalmsg"
+          "config.generalchannel"
         );
 
-        const embed = new MessageEmbed()
-          .setAuthor(
-            member.user.username,
-            member.user.displayAvatarURL({
-              dynamic: true,
-              format: "png",
-            })
-          )
-          .setColor(color)
-          .setDescription(
-            generalMSG
-              ? generalMSG
-              : "Please set up a general msg `.setgeneralmsg`"
+        if (general) {
+          const welcomeChannel = message.guild.channels.cache.get(
+            general
+          ) as TextChannel;
+
+          const generalMSG = await this.client.settings.get(
+            message.guild.id,
+            "config.generalmsg"
           );
 
-        await welcomeChannel.send(`${member}`).catch(() => null);
-        await welcomeChannel.send(embed).catch(() => null);
+          const embed = new MessageEmbed()
+            .setAuthor(
+              member.user.username,
+              member.user.displayAvatarURL({
+                dynamic: true,
+                format: "png",
+              })
+            )
+            .setColor(color)
+            .setDescription(
+              generalMSG
+                ? generalMSG
+                : _MESSAGE_EMBED("Please set up a general msg `.setgeneralmsg`")
+            );
 
-        const ban: Repository<Banlist> = this.client.db.getRepository(Banlist);
+          await welcomeChannel.send(`${member}`).catch(() => null);
+          await welcomeChannel.send(embed).catch(() => null);
 
-        const findInBanList = await ban.findOne({
-          where: {
-            member: member.id,
-            guild: member.guild.id,
-          },
-        });
+          const ban: Repository<Banlist> = this.client.db.getRepository(
+            Banlist
+          );
 
-        if (findInBanList) {
-          await ban.delete({
-            member: member.id,
-            guild: member.guild.id,
+          const findInBanList = await ban.findOne({
+            where: {
+              member: member.id,
+              guild: member.guild.id,
+            },
           });
 
-          return message.channel.send(`${member} removed from banlist..`);
+          if (findInBanList) {
+            await ban.delete({
+              member: member.id,
+              guild: member.guild.id,
+            });
+
+            return message.channel.send(
+              _MESSAGE_EMBED(`✅ ${member} removed from banlist..`)
+            );
+          }
+          const SupportChannel = message.guild.channels.cache.find(
+            (name) => name.name === `tls-${member.id}`
+          );
+
+          if (!SupportChannel) return;
+
+          await SupportChannel.delete();
         }
-        const SupportChannel = message.guild.channels.cache.find(
-          (name) => name.name === `tls-${member.id}`
-        );
-
-        if (!SupportChannel) return;
-
-        await SupportChannel.delete();
       }
     }
   }

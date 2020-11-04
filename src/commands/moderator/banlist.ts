@@ -7,6 +7,7 @@ import { Embeds } from "discord-paginationembed";
 import { color } from "../../Config";
 import { splitTextByLength } from "../../functions/SplitTextByLength";
 import { Banlist } from "../../models/Banlist";
+import { _MESSAGE_EMBED } from "../../lib/_MESSAGE_EMBED";
 
 export default class BanlistCommand extends Command {
   public constructor() {
@@ -23,6 +24,8 @@ export default class BanlistCommand extends Command {
     const ban: Repository<Banlist> = this.client.db.getRepository(Banlist);
 
     const find = await ban.find();
+
+    if (!find.length) return message.channel.send(_MESSAGE_EMBED("EMPTY..."));
 
     find[0].member;
 
