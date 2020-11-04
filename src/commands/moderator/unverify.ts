@@ -5,6 +5,7 @@ import { Message, GuildMember } from "discord.js";
 import { Repository } from "typeorm";
 
 import { color } from "../../Config";
+import { _MESSAGE_EMBED } from "../../lib/_MESSAGE_EMBED";
 import { Banlist } from "../../models/Banlist";
 
 export default class Unverify extends Command {
@@ -12,59 +13,73 @@ export default class Unverify extends Command {
     super("unverify", {
       aliases: ["unverify"],
       category: "Public Commands",
-      userPermissions: "MANAGE_MESSAGES",
+
       ratelimit: 40,
       args: [
         {
           id: "member",
           type: "member",
-          prompt: {
-            start: (msg: Message) => `${msg.author},\n\nverify [@member]`,
-            retry: (msg: Message) => `${msg.author},\n\nverify [@member]`,
-          },
         },
       ],
     });
   }
 
   public async exec(message: Message, { member }: { member: GuildMember }) {
-    if (member.hasPermission("MANAGE_MESSAGES")) return;
+    const modRole = await this.client.settings.get(
+      message.guild.id,
+      "config.modrole"
+    );
 
-    const rolesOfUser = member.roles.cache
-      .filter((role) => role.id !== message.guild.roles.everyone.id)
-      .map((role) => {
-        return role.id;
-      });
-
-    await member.roles
-      .remove(rolesOfUser)
-      .then((res) => {
-        message.channel.send(`${member} has been unverified`);
-      })
-      .catch(() => null);
-
-    const ban: Repository<Banlist> = this.client.db.getRepository(Banlist);
-
-    const findUser = await ban.findOne({
-      where: {
-        guild: message.guild.id,
-        member: member.id,
-      },
-    });
-
-    if (findUser)
-      return message.channel.send(`${member} is already in the banlist`);
-
-    await ban
-      .insert({
-        guild: message.guild.id,
-        member: member.id,
-        reason: "UNVERIFIED",
-      })
-      .then((res) => {
+    if (message.member.roles.cache.has(modRole)) {
+      if (!member)
         return message.channel.send(
-          `${member} has been added to the banlist...`
+          _MESSAGE_EMBED("`❌` Please provide a user!! `[@username]`")
         );
-      });
+
+      if (member.hasPermission("MANAGE_MESSAGES")) {
+        return message.channel.send(_MESSAGE_EMBED(`⚠️ This is a Moderator`));
+      } else {
+        const rolesOfUser = member.roles.cache
+          .filter((role) => role.id !== message.guild.roles.everyone.id)
+          .map((role) => {
+            return role.id;
+          });
+
+        await member.roles
+          .remove(rolesOfUser)
+          .then((res) => {
+            message.channel.send(
+              _MESSAGE_EMBED(`✅ ${member} has been unverified`)
+            );
+          })
+          .catch(() => null);
+
+        const ban: Repository<Banlist> = this.client.db.getRepository(Banlist);
+
+        const findUser = await ban.findOne({
+          where: {
+            guild: message.guild.id,
+            member: member.id,
+          },
+        });
+
+        if (findUser)
+          return message.channel.send(
+            _MESSAGE_EMBED(`❌ ${member} is already in the banlist`)
+          );
+
+        await ban
+          .insert({
+            guild: message.guild.id,
+            member: member.id,
+            reason: "UNVERIFIED",
+          })
+          .then(() => {
+            return message.channel.send(
+              _MESSAGE_EMBED(`✅ ${member} has been added to the banlist...`)
+            );
+          });
+      }
+    }
   }
 }
