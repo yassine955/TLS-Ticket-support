@@ -14,6 +14,6 @@ export default class Emit extends Command {
   }
 
   public async exec(message: Message) {
-    return message.client.emit("guildMemberRemove", message.member);
+    return message.client.emit("guildMemberAdd", message.member);
   }
 }
