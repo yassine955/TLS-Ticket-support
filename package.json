@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch": "tsc -w",
-    "dev": "nodemon dist/Bot.js"
+    "dev": "nodemon dist/Bot.js",
+    "gen-env": "gen-env-types .env -o src/env.d.ts -e ."
   },
   "keywords": [],
   "author": "",
@@ -28,6 +29,7 @@
     "express-session": "^1.17.1",
     "ffmpeg": "^0.0.4",
     "ffmpeg-static": "^4.2.1",
+    "gen-env-types": "^1.0.4",
     "jsonwebtoken": "^8.5.1",
     "jssoup": "^0.0.12",
     "moment": "^2.29.1",
