@@ -11,7 +11,7 @@ const connectionManager: ConnectionManager = new ConnectionManager();
 connectionManager.create({
   name: dbName,
   type: "sqlite",
-  database: path.resolve(__dirname, "../db.sqlite"),
+  database: path.resolve(__dirname, "../../db.sqlite"),
   entities: [Settings, Banlist],
   logger: "debug",
 });

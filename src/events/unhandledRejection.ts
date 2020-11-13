@@ -12,6 +12,6 @@ export default class UnhandledRejection extends Listener {
   }
 
   public async exec(error: DiscordAPIError) {
-    console.log(error.message);
+    console.log(error);
   }
 }
