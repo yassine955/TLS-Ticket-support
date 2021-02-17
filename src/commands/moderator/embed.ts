@@ -31,10 +31,12 @@ export default class EmbedCommand extends Command {
 
   public async exec(message: Message, { msg }: { msg: string }) {
 
-    return message.util.send(new MessageEmbed({
-      color,
-      description: msg
-    }))
+    await message.delete()
+
+    return message.util.send(new MessageEmbed().setColor(color).setDescription(msg).setThumbnail(message.guild.iconURL({
+      dynamic: true,
+      size: 4096
+    })))
 
 
   }
