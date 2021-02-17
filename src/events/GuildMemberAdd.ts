@@ -3,9 +3,10 @@ import { MessageEmbed } from "discord.js";
 
 import { TextChannel } from "discord.js";
 
-import { DiscordAPIError, GuildMember } from "discord.js";
+import { GuildMember } from "discord.js";
 
-import { BotVersion, color, PRODUCTION } from "../Config";
+import { color } from "../Config";
+import Canvas from "discord-canvas"
 
 export default class GuildMemberAdd extends Listener {
    public constructor() {

@@ -8,6 +8,9 @@ import { color } from "../../Config";
 import { _MESSAGE_EMBED } from "../../lib/_MESSAGE_EMBED";
 import { Banlist } from "../../models/Banlist";
 
+import Canvas from "discord-canvas"
+import { MessageAttachment } from "discord.js";
+
 export default class Verify extends Command {
    public constructor() {
       super("verify", {
@@ -43,7 +46,7 @@ export default class Verify extends Command {
       if (
          message.member.roles.cache.has(helperRole) &&
          helperRole &&
-         verifyRole
+         verifyRole || verifyRole && message.member.hasPermission("ADMINISTRATOR")
       ) {
          if (!member)
             return message.channel.send(
@@ -98,12 +101,39 @@ export default class Verify extends Command {
                      generalMSG
                         ? generalMSG
                         : _MESSAGE_EMBED(
-                             "Please set up a general msg `.setgeneralmsg`"
-                          )
+                           "Please set up a general msg `.setgeneralmsg`"
+                        )
                   );
 
+
+
+
                await welcomeChannel.send(`${member}`).catch(() => null);
-               await welcomeChannel.send(embed).catch(() => null);
+
+               const image = await new Canvas.Goodbye()
+                  .setUsername(member.user.username)
+                  .setDiscriminator(member.user.discriminator)
+                  .setMemberCount(member.guild.memberCount)
+                  .setGuildName(member.guild.name)
+                  .setAvatar(member.user.displayAvatarURL({
+                     format: "png"
+                  }))
+                  .setText("title", "Welkom")
+                  .setText("message", "{server}")
+                  .setOpacity("message-box", 0)
+                  .setText("member-count", "- {count}ste member")
+                  .setColor("border", "#8015EA")
+                  .setColor("username-box", "#8015EA")
+                  .setColor("discriminator-box", "#8015EA")
+                  .setColor("message-box", "#8015EA")
+                  .setColor("title", "#8015EA")
+                  .setColor("avatar", "#8015EA")
+                  .setBackground("https://cdn.discordapp.com/attachments/811581034588143636/811605257531818022/Untitled-1.png")
+                  .toAttachment();
+
+               const attachment = new MessageAttachment(image.toBuffer(), "goodbye-image.png");
+
+               await welcomeChannel.send(attachment).catch(() => null);
 
                const ban: Repository<Banlist> = this.client.db.getRepository(
                   Banlist
