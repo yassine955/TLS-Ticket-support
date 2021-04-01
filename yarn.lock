@@ -1065,6 +1065,13 @@ discord-canvas@^1.4.1:
     fortnite-9812 "^1.0.4"
     fs "^0.0.1-security"
 
+discord-fetch-messages@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/discord-fetch-messages/-/discord-fetch-messages-2.2.1.tgz#5875eaa1238a8410a82329ac73b987f9958d2d0d"
+  integrity sha512-0t/5MbAv2W6zKC+ng6gPCIJ4d1BLt5CmrbXnOJ+76x7HTerAgULTJ1M5GhtLHFTbImbsPdc4ILmdR7uPc5PcmQ==
+  dependencies:
+    discord.js "^12.5.1"
+
 discord-paginationembed@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/discord-paginationembed/-/discord-paginationembed-2.1.0.tgz"

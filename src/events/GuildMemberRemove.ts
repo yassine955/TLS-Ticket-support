@@ -12,10 +12,6 @@ export default class GuildMemberRemove extends Listener {
    }
 
    public async exec(member: GuildMember) {
-      const ticketChannelSecure = member.guild.channels.cache.find(
-         (ticket) => ticket.name === `dls-${member.id}`
-      );
 
-      if (ticketChannelSecure) await ticketChannelSecure.delete();
    }
 }

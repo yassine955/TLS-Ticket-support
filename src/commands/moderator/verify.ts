@@ -7,6 +7,7 @@ import { Repository } from "typeorm";
 import { color } from "../../Config";
 import { _MESSAGE_EMBED } from "../../lib/_MESSAGE_EMBED";
 import { Banlist } from "../../models/Banlist";
+import { Fetcher } from "discord-fetch-messages"
 
 import Canvas from "discord-canvas"
 import { MessageAttachment } from "discord.js";
@@ -59,10 +60,10 @@ export default class Verify extends Command {
                );
             }
 
-            if (member.hasPermission("MANAGE_MESSAGES"))
-               return message.channel.send(
-                  _MESSAGE_EMBED(`⚠️ This is a Moderator`)
-               );
+            // if (member.hasPermission("MANAGE_MESSAGES"))
+            //    return message.channel.send(
+            //       _MESSAGE_EMBED(`⚠️ This is a Moderator`)
+            //    );
 
             await member.roles
                .add(verifyRole)
@@ -162,7 +163,8 @@ export default class Verify extends Command {
 
                if (!SupportChannel) return;
 
-               await SupportChannel.delete();
+
+
             }
          }
       }
