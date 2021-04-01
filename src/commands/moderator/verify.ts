@@ -163,7 +163,9 @@ export default class Verify extends Command {
 
                if (!SupportChannel) return;
 
-               await SupportChannel.updateOverwrite(member, { VIEW_CHANNEL: false })
+               await SupportChannel.updateOverwrite(member, { VIEW_CHANNEL: false });
+
+               await member.roles.remove('808700901845893132')
 
 
             }
