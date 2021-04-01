@@ -163,6 +163,7 @@ export default class Verify extends Command {
 
                if (!SupportChannel) return;
 
+               await SupportChannel.updateOverwrite(member, { VIEW_CHANNEL: false })
 
 
             }
