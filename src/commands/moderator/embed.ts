@@ -1,12 +1,12 @@
 import { Command } from "discord-akairo";
 import { MessageEmbed } from "discord.js";
-import { TextChannel } from "discord.js";
-import { Message, GuildMember } from "discord.js";
-import { Repository } from "typeorm";
+
+import { Message } from "discord.js";
+
 
 import { color } from "../../Config";
 import { _MESSAGE_EMBED } from "../../lib/_MESSAGE_EMBED";
-import { Banlist } from "../../models/Banlist";
+
 
 export default class EmbedCommand extends Command {
   public constructor() {
